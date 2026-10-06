@@ -8,7 +8,7 @@
   <p>
     <a href="https://www.linkedin.com/in/audreykarellekitio/" target="blank"><img align="center" src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white" height="30"/></a>
     <a href="mailto:audreykarellekits@gmail.com" target="blank"><img align="center" src="https://img.shields.io/badge/Gmail-D14836?style=for-the-badge&logo=gmail&logoColor=white" height="30"/></a>
-    <a href="CV_KITIO_AUDREY.pdf" target="blank"><img align="center" src="https://img.shields.io/badge/Telecharger_Mon_CV-293036?style=for-the-badge&logo=adobe-acrobat-reader&logoColor=white" height="30"/></a>
+    <a href="MY_CV.pdf" target="blank"><img align="center" src="https://img.shields.io/badge/Telecharger_Mon_CV-293036?style=for-the-badge&logo=adobe-acrobat-reader&logoColor=white" height="30"/></a>
   </p>
 </div>
 
