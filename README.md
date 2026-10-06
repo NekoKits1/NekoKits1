@@ -1,61 +1,45 @@
+<h1 align="center"><b style="font-family:Consolas; font-size:3rem;">Audrey Kitio</b></h1>
+
+<hr>
+
+<h3 align="center" style="font-family:Ink Free; font-size:2.0rem;">Étudiante Ingénieure | Cloud Engineering & Cybersécurité</h3>
+
 <div align="center">
-  <h1>KITIO AUDREY</h1>
-  <h3>Étudiante Ingénieure en Cybersécurité & Cloud Engineering</h3>
-  
-  <a href="https://www.linkedin.com/in/audreykarellekitio/"><img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white" alt="LinkedIn"></a>
-  <a href="mailto:audreykarellekits@gmail.com"><img src="https://img.shields.io/badge/Email-D14836?style=for-the-badge&logo=gmail&logoColor=white" alt="Email"></a>
-  <a href="CV_KITIO_AUDREY.pdf"><img src="https://img.shields.io/badge/Télécharger_mon_CV-293036?style=for-the-badge&logo=adobe-acrobat-reader&logoColor=white" alt="CV"></a>
+  <p>
+    <a href="https://www.linkedin.com/in/audreykarellekitio/" target="blank"><img align="center" src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white" height="30"/></a>
+    <a href="mailto:audreykarellekits@gmail.com" target="blank"><img align="center" src="https://img.shields.io/badge/Gmail-D14836?style=for-the-badge&logo=gmail&logoColor=white" height="30"/></a>
+    <a href="CV_KITIO_AUDREY.pdf" target="blank"><img align="center" src="https://img.shields.io/badge/Telecharger_Mon_CV-293036?style=for-the-badge&logo=adobe-acrobat-reader&logoColor=white" height="30"/></a>
+  </p>
 </div>
 
-<br>
+<hr>
 
-## À propos
-
-Actuellement en double-diplôme d'ingénieur entre l'EFREI Paris et l'Institut Universitaire Saint Jean (IUSJ), je me spécialise dans la conception, l'optimisation et la sécurisation des infrastructures critiques. 
-
-Mon approche allie une solide maîtrise des protocoles de routage dynamique (BGP, OSPF) à une expertise technique dans le déploiement d'architectures Cloud et l'automatisation. Mon objectif est d'accompagner les entreprises dans la transition et la protection de leurs systèmes d'information, en combinant rigueur analytique, vision opérationnelle et respect des standards de sécurité de l'industrie.
-
-<br>
-
-## Compétences Techniques
-
-**Cloud & DevOps** <br>
-<img src="https://img.shields.io/badge/AWS-232F3E?style=for-the-badge&logo=amazon-aws&logoColor=white" />
-<img src="https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white" />
-<img src="https://img.shields.io/badge/Terraform-7B42BC?style=for-the-badge&logo=terraform&logoColor=white" />
-<img src="https://img.shields.io/badge/LocalStack-FFFFFF?style=for-the-badge&logo=localstack&logoColor=black" />
-
-<br>
-
-**Réseaux & Sécurité** <br>
-<img src="https://img.shields.io/badge/Cisco-1BA0D7?style=for-the-badge&logo=cisco&logoColor=white" />
-<img src="https://img.shields.io/badge/Wireshark-1679A7?style=for-the-badge&logo=wireshark&logoColor=white" />
-<img src="https://img.shields.io/badge/BGP_/_OSPF-333333?style=for-the-badge" />
-<img src="https://img.shields.io/badge/EVE--NG-555555?style=for-the-badge" />
-
-<br>
-
-**Systèmes & Langages** <br>
-<img src="https://img.shields.io/badge/Linux-FCC624?style=for-the-badge&logo=linux&logoColor=black" />
-<img src="https://img.shields.io/badge/Windows_Server-0078D6?style=for-the-badge&logo=windows&logoColor=white" />
-<img src="https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white" />
-<img src="https://img.shields.io/badge/Java-ED8B00?style=for-the-badge&logo=java&logoColor=white" />
-<img src="https://img.shields.io/badge/Git-F05032?style=for-the-badge&logo=git&logoColor=white" />
-
-<br>
-
-## Projets Techniques
-
-<p align="center">
-  <a href="https://github.com/NekoKits1/Cloud-simul-avec-localstack">
-    <img src="https://github-readme-stats.vercel.app/api/pin/?username=NekoKits1&repo=Cloud-simul-avec-localstack&theme=transparent&hide_border=true&title_color=58A6FF&text_color=C9D1D9&icon_color=58A6FF&bg_color=0D1117" alt="Projet LocalStack" width="48%">
-  </a>
-  <a href="https://github.com/NekoKits1/NOM_DU_REPO_BGP">
-    <img src="https://github-readme-stats.vercel.app/api/pin/?username=NekoKits1&repo=NOM_DU_REPO_BGP&theme=transparent&hide_border=true&title_color=58A6FF&text_color=C9D1D9&icon_color=58A6FF&bg_color=0D1117" alt="Projet BGP" width="48%">
-  </a>
+<h2>👋 À propos de moi</h2>
+<p>
+  Actuellement en double-diplôme d'ingénieur entre l'<b>EFREI Paris</b> et l'<b>Institut Universitaire Saint Jean (IUSJ)</b>, je me spécialise en <b>Cloud Engineering, Architecture Réseau et Cybersécurité</b>. Passionnée par la conception d'infrastructures résilientes, l'automatisation des déploiements cloud et l'optimisation des protocoles de routage dynamique (BGP/OSPF).
 </p>
+
+<hr>
+
+<h2>🎓 Certifications et Engagements</h2>
+<div align="center">
+  <p>
+    <img src="https://img.shields.io/badge/Cisco_Networking_Academy-CCNA:_Introduction_to_Networks-1BA0D7?style=for-the-badge&logo=cisco&logoColor=white" height="35" />
+    <br><br>
+    <img src="https://img.shields.io/badge/AWS-Student_Builder_Group_Core_Team-232F3E?style=for-the-badge&logo=amazon-aws&logoColor=white" height="35" />
+    <img src="https://img.shields.io/badge/AWS-Cloud_Clubs_Core_Team-FF9900?style=for-the-badge&logo=amazon-aws&logoColor=white" height="35" />
+  </p>
+</div>
+
+<hr>
+
+<h2 align="left" style="font-family:Ink Free; font-size:2.5rem;">🛠️ Outils et Technologies</h2>
+<div align="center">
+  <img src="https://skillicons.dev/icons?i=aws,docker,terraform,linux,python,java,git,bash,cisco&perline=8" alt="Languages and Tools">  
+</div>
+
+<hr>
+
 <p align="center">
-  <a href="https://github.com/NekoKits1/Reverse-Shell-Python-TCP">
-    <img src="https://github-readme-stats.vercel.app/api/pin/?username=NekoKits1&repo=Reverse-Shell-Python-TCP&theme=transparent&hide_border=true&title_color=58A6FF&text_color=C9D1D9&icon_color=58A6FF&bg_color=0D1117" alt="Projet Reverse Shell" width="48%">
-  </a>
+  <img src="https://komarev.com/ghpvc/?username=NekoKits1&label=Vues%20du%20profil&color=0e75b6&style=flat" alt="Profile views" />
 </p>
