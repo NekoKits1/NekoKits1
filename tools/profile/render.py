@@ -2,10 +2,6 @@
 
 Every slice is part of one continuous console frame. Run fetch.py first to refresh
 data/*.json; this script only reads those files and draws.
-
-Every slice is W wide, a multiple of 40px tall (so the grid lines up across slices),
-and draws the same side rails; only the first slice has the top edge and title bar,
-only the last one closes the frame.
 """
 import base64, datetime, hashlib, html, io, json, math, pathlib, re, textwrap
 
@@ -17,15 +13,15 @@ ROOT = HERE.parent.parent
 DATA = HERE / "data"
 OUT = ROOT / "assets"
 FONT_DIR = HERE / "fonts"
-CYAN, MAGENTA, GREEN = "#00d9ff", "#ff2bd6", "#3fb950"
-W, M = 880, 16            # slice width, transparent side margin (room for the glow)
-FL, FR = M, W - M         # frame left / right
-X = 52                    # text left edge
+PURPLE, PINK, GREEN = "#a855f7", "#ec4899", "#3fb950"
+CYAN, MAGENTA = PURPLE, PINK   # keep internal aliases so shared helpers work unchanged
+W, M = 880, 16
+FL, FR = M, W - M
+X = 52
 e = html.escape
 
 
 def visible(markup):
-    """The characters a piece of SVG markup actually displays (so the font subset never misses one)."""
     return html.unescape(re.sub(r"<[^>]+>", "", markup))
 
 
@@ -33,7 +29,7 @@ def faces(text, weights=(400, 700)):
     text += "0123456789"
     out = []
     for w in weights:
-        f = TTFont(FONT_DIR / f"jetbrains-mono-latin-{w}-normal.woff2", recalcTimestamp=False)  # fixed timestamp keeps output byte-identical between runs
+        f = TTFont(FONT_DIR / f"jetbrains-mono-latin-{w}-normal.woff2", recalcTimestamp=False)
         o = subset.Options(); o.flavor = "woff2"; o.layout_features = []
         s = subset.Subsetter(o); s.populate(text=text); s.subset(f)
         b = io.BytesIO(); f.flavor = "woff2"; f.save(b)
@@ -43,7 +39,7 @@ def faces(text, weights=(400, 700)):
 
 
 BASE_CSS = f"""text{{font-family:'JBM',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:15px}}
-.dim{{fill:#8b949e}}.cy{{fill:{CYAN}}}.fg{{fill:#c9d1d9}}.gr{{fill:{GREEN}}}.wh{{fill:#f0fbff}}
+.dim{{fill:#8b949e}}.cy{{fill:{PURPLE}}}.fg{{fill:#c9d1d9}}.gr{{fill:{GREEN}}}.wh{{fill:#f0fbff}}.pk{{fill:{PINK}}}
 @keyframes fadein{{from{{opacity:0;transform:translateX(-6px)}}to{{opacity:1;transform:none}}}}
 @keyframes blink{{0%,49%{{opacity:1}}50%,100%{{opacity:0}}}}
 @keyframes pulse{{0%,100%{{opacity:1}}50%{{opacity:.35}}}}
@@ -51,7 +47,7 @@ BASE_CSS = f"""text{{font-family:'JBM',ui-monospace,SFMono-Regular,Menlo,Consola
 .cursor{{animation:blink 1.05s step-end infinite}}
 .dot{{animation:pulse 2s ease-in-out infinite}}"""
 
-DEFS = f"""<pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M40 0H0V40" fill="none" stroke="{CYAN}" stroke-opacity=".06"/></pattern>
+DEFS = f"""<pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M40 0H0V40" fill="none" stroke="{PURPLE}" stroke-opacity=".06"/></pattern>
 <filter id="glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="6"/></filter>
 <filter id="g" x="-20%" y="-60%" width="140%" height="220%"><feGaussianBlur stdDeviation="4"/></filter>"""
 
@@ -86,27 +82,26 @@ def slice_svg(h, body, *, title, desc, text, top=False, bottom=False, css="", de
 {DEFS}
 {defs}
 </defs>
-<path d="{glow}" fill="none" stroke="{CYAN}" stroke-width="3" opacity=".55" filter="url(#glow)"/>
+<path d="{glow}" fill="none" stroke="{PURPLE}" stroke-width="3" opacity=".55" filter="url(#glow)"/>
 <rect x="{FL}" y="{y0}" width="{FR-FL}" height="{y1-y0}" fill="#03040a"/>
 <rect x="{FL}" y="{y0}" width="{FR-FL}" height="{y1-y0}" fill="url(#grid)"/>
 {body}
-<path d="{rails}" fill="none" stroke="{CYAN}" stroke-width="1.2"/>
-<g fill="none" stroke="{CYAN}" stroke-width="2">{corners}</g>
+<path d="{rails}" fill="none" stroke="{PURPLE}" stroke-width="1.2"/>
+<g fill="none" stroke="{PURPLE}" stroke-width="2">{corners}</g>
 </svg>
 '''
 
 
 def heading(y, name, counter):
-    return f'''<text x="{X}" y="{y}" font-weight="700" fill="{CYAN}" filter="url(#g)" opacity=".8" style="font-size:20px">~/</text>
+    return f'''<text x="{X}" y="{y}" font-weight="700" fill="{PURPLE}" filter="url(#g)" opacity=".8" style="font-size:20px">~/</text>
 <text x="{X}" y="{y}" font-weight="700" style="font-size:20px"><tspan class="cy">~/</tspan><tspan class="wh">{e(name)}</tspan></text>
 <text x="{FR-36}" y="{y}" text-anchor="end" letter-spacing="2" fill="#6e7681" style="font-size:12px">{e(counter)}</text>
-<line x1="{X}" y1="{y+14}" x2="{FR-36}" y2="{y+14}" stroke="{CYAN}" stroke-opacity=".4"/>
-<line x1="{X}" y1="{y+14}" x2="{X+120}" y2="{y+14}" stroke="{CYAN}" stroke-width="2"/>
-<line x1="{X}" y1="{y+14}" x2="{X+120}" y2="{y+14}" stroke="{CYAN}" stroke-width="3" filter="url(#g)"/>'''
+<line x1="{X}" y1="{y+14}" x2="{FR-36}" y2="{y+14}" stroke="{PURPLE}" stroke-opacity=".4"/>
+<line x1="{X}" y1="{y+14}" x2="{X+120}" y2="{y+14}" stroke="{PURPLE}" stroke-width="2"/>
+<line x1="{X}" y1="{y+14}" x2="{X+120}" y2="{y+14}" stroke="{PURPLE}" stroke-width="3" filter="url(#g)"/>'''
 
 
 def stagger(rows, y0, lh, delay0=0.15, step=0.12):
-    """rows: markup strings with {y}, or None for a small spacer. Returns (markup, next_y)."""
     out, y, i = [], y0, 0
     for r in rows:
         if r is None:
@@ -123,70 +118,121 @@ def up40(v):
 
 # ─────────────────────────────── header ───────────────────────────────
 def build_header():
-    bar_left, bar_right = "SYS://PILOTRONICA // NODE:GIORGI", "ONLINE · ALL SYSTEMS NOMINAL"
-    name = "GIORGI KOBAIDZE"
-    lines = ["software engineer · engineering manager", "10 years of C# / .NET, back-end at heart",
-             "building open-source tools under "]
-    text = bar_left + bar_right + name + "$ whoami>>" + "".join(lines) + "PILOTRONICA"
-    h = 360
+    bar_left = "● ● ●"
+    bar_right = "CONNECTED"
+    name = "AUDREY KITIO"
+    h = 480
     css = f"""@keyframes type{{from{{width:0}}}}
 @keyframes flicker{{0%{{opacity:0}}10%{{opacity:1}}14%{{opacity:.2}}22%{{opacity:1}}30%{{opacity:.4}}40%,100%{{opacity:1}}}}
 @keyframes gm{{0%,92%,100%{{transform:translate(0,0)}}93%{{transform:translate(5px,-1px)}}95%{{transform:translate(-3px,1px)}}97%{{transform:translate(2px,0)}}}}
 @keyframes gc{{0%,92%,100%{{transform:translate(0,0)}}93%{{transform:translate(-5px,1px)}}95%{{transform:translate(4px,-1px)}}97%{{transform:translate(-2px,0)}}}}
 .typing{{animation:type .7s steps(8) .3s both}}
-.name{{animation:flicker .9s linear 1.1s both}}
-.gm{{animation:gm 6s linear 2s infinite}}.gc{{animation:gc 6s linear 2s infinite}}"""
+.name{{animation:flicker .9s linear 1.3s both}}
+.gm{{animation:gm 6s linear 2.2s infinite}}.gc{{animation:gc 6s linear 2.2s infinite}}"""
     defs = f"""<pattern id="scan" width="4" height="3" patternUnits="userSpaceOnUse"><rect width="4" height="1" fill="#000" fill-opacity=".2"/></pattern>
 <filter id="tglow" x="-5%" y="-40%" width="110%" height="180%"><feGaussianBlur stdDeviation="9"/></filter>
 <filter id="sglow" x="-20%" y="-60%" width="140%" height="220%"><feGaussianBlur stdDeviation="3"/></filter>
-<clipPath id="typeclip"><rect class="typing" x="{X}" y="80" width="140" height="30"/></clipPath>"""
-    dotx = FR - 20 - len(bar_right) * 8.2 - 16
-    rows = [f'<text class="fg" x="{X}" y="{{y}}"><tspan class="cy">&gt;&gt;</tspan> {e(lines[0])}</text>',
-            f'<text class="fg" x="{X}" y="{{y}}"><tspan class="cy">&gt;&gt;</tspan> {e(lines[1])}</text>',
-            f'<text class="fg" x="{X}" y="{{y}}"><tspan class="cy">&gt;&gt;</tspan> {e(lines[2])}<tspan class="cy" font-weight="700">PILOTRONICA</tspan></text>']
-    desc_lines, _ = stagger(rows, 218, 24, delay0=1.75, step=0.25)
-    body = f'''<rect x="{FL}" y="{M}" width="{FR-FL}" height="34" fill="{CYAN}" fill-opacity=".08"/>
-<line x1="{FL}" y1="{M+34}" x2="{FR}" y2="{M+34}" stroke="{CYAN}" stroke-opacity=".5"/>
-<text x="{FL+16}" y="{M+22}" letter-spacing="1" class="cy" style="font-size:12px">{e(bar_left)}</text>
+<clipPath id="typeclip"><rect class="typing" x="{X}" y="246" width="140" height="26"/></clipPath>"""
+    # dot before CONNECTED label
+    conn_x = FR - 20 - len(bar_right) * 8.2 - 24
+    # meterpreter lines — staggered fadein
+    meta_rows = [
+        f'<text x="{X}" y="{{y}}" class="dim"><tspan class="gr">[*]</tspan> Sending stage (175174 bytes) to 192.168.1.105</text>',
+        f'<text x="{X}" y="{{y}}" class="dim"><tspan class="gr">[*]</tspan> Meterpreter session 1 opened (10.10.14.5:4444 -&gt;</text>',
+        f'<text x="{X+28}" y="{{y}}" class="dim">192.168.1.105:53422) at 2049-03-17 03:17:42 +0000</text>',
+        None,
+        f'<text x="{X}" y="{{y}}" class="fg"><tspan class="cy">meterpreter</tspan> &gt; sysinfo</text>',
+        f'<text x="{X}" y="{{y}}" class="dim">Computer    : <tspan class="fg">AUDREY-KITIO</tspan></text>',
+        f'<text x="{X}" y="{{y}}" class="dim">OS          : Linux 6.5.0-generic (x86_64)</text>',
+        None,
+        f'<text x="{X}" y="{{y}}" class="gr" font-weight="700">[+] ACCESS GRANTED :: Target compromised successfully.</text>',
+    ]
+    meta_svg, y_after_meta = stagger(meta_rows, 80, 22, delay0=0.2, step=0.15)
+    # description lines after whoami + name
+    desc_rows = [
+        f'<text x="{X}" y="{{y}}" class="fg"><tspan class="cy">&gt;&gt;</tspan> &#201;tudiante Ing&#233;nieure Cloud &amp; Cybers&#233;curit&#233;</text>',
+        f'<text x="{X}" y="{{y}}" class="fg"><tspan class="cy">&gt;&gt;</tspan> &#171;&#160;Je construis les architectures, je les attaque et j&#39;apprends &#224; les d&#233;fendre.&#160;&#187;</text>',
+        f'<text x="{X}" y="{{y}}" class="fg"><tspan class="cy">&gt;&gt;</tspan> Double-dipl&#244;me&#160;: EFREI Paris &#215; Institut Universitaire Saint Jean</text>',
+    ]
+    desc_svg, _ = stagger(desc_rows, 350, 24, delay0=2.0, step=0.25)
+    body = f'''<rect x="{FL}" y="{M}" width="{FR-FL}" height="34" fill="{PURPLE}" fill-opacity=".08"/>
+<line x1="{FL}" y1="{M+34}" x2="{FR}" y2="{M+34}" stroke="{PURPLE}" stroke-opacity=".5"/>
+<text x="{FL+16}" y="{M+22}" letter-spacing="2" class="cy" style="font-size:13px">{e(bar_left)}</text>
 <text x="{FR-20}" y="{M+22}" letter-spacing="1" class="dim" text-anchor="end" style="font-size:12px">{e(bar_right)}</text>
-<circle class="dot" cx="{dotx}" cy="{M+18}" r="4" fill="{GREEN}"/>
-<circle class="dot" cx="{dotx}" cy="{M+18}" r="4" fill="{GREEN}" filter="url(#sglow)"/>
-<g clip-path="url(#typeclip)"><text x="{X}" y="102" class="dim"><tspan class="gr">$</tspan> whoami</text></g>
-<g class="name" font-weight="800" letter-spacing="2" style="font-size:56px">
-<text x="{X}" y="172" fill="{CYAN}" opacity=".55" filter="url(#tglow)" style="font-size:56px">{name}</text>
-<g class="gm"><text x="{X+3}" y="172" fill="{MAGENTA}" opacity=".75" style="font-size:56px">{name}</text></g>
-<g class="gc"><text x="{X-3}" y="172" fill="{CYAN}" opacity=".85" style="font-size:56px">{name}</text></g>
-<text x="{X}" y="172" fill="#f0fbff" style="font-size:56px">{name}</text>
+<circle class="dot" cx="{conn_x}" cy="{M+18}" r="4" fill="{GREEN}"/>
+<circle class="dot" cx="{conn_x}" cy="{M+18}" r="4" fill="{GREEN}" filter="url(#sglow)"/>
+{meta_svg}
+<g clip-path="url(#typeclip)"><text x="{X}" y="268" class="dim"><tspan class="gr">$</tspan> whoami</text></g>
+<g class="name" font-weight="800" letter-spacing="2" style="font-size:44px">
+<text x="{X}" y="322" fill="{PURPLE}" opacity=".55" filter="url(#tglow)" style="font-size:44px">{name}</text>
+<g class="gm"><text x="{X+3}" y="322" fill="{PINK}" opacity=".75" style="font-size:44px">{name}</text></g>
+<g class="gc"><text x="{X-3}" y="322" fill="{PURPLE}" opacity=".85" style="font-size:44px">{name}</text></g>
+<text x="{X}" y="322" fill="#f0fbff" style="font-size:44px">{name}</text>
 </g>
-{desc_lines}
-<g class="ln" style="animation-delay:2.8s">
-<text x="{X}" y="304" class="gr">$</text>
-<rect class="cursor" x="{X+18}" y="291" width="10" height="17" fill="{CYAN}"/>
-<rect class="cursor" x="{X+18}" y="291" width="10" height="17" fill="{CYAN}" filter="url(#sglow)"/>
+{desc_svg}
+<g class="ln" style="animation-delay:3.2s">
+<text x="{X}" y="430" class="gr">$</text>
+<rect class="cursor" x="{X+18}" y="417" width="10" height="17" fill="{PURPLE}"/>
+<rect class="cursor" x="{X+18}" y="417" width="10" height="17" fill="{PURPLE}" filter="url(#sglow)"/>
 </g>
 <rect x="{FL}" y="{M+35}" width="{FR-FL}" height="{h-M-35}" fill="url(#scan)"/>'''
-    return slice_svg(h, body, title="Giorgi Kobaidze",
-                     desc="Software engineer and engineering manager. 10 years of C# and .NET, back-end at heart. "
-                          "Building open-source tools under Pilotronica.",
+    text = (bar_left + bar_right + name
+            + "[*] Sending stage bytes to Meterpreter session opened at"
+            + "Computer AUDREY-KITIO OS Linux 6.5.0-generic x86_64"
+            + "[+] ACCESS GRANTED Target compromised successfully"
+            + "$ whoami >> Etudiante Ingenieure Cloud Cybersecurite"
+            + "Je construis les architectures je les attaque et j apprends a les defendre"
+            + "Double-diplome EFREI Paris Institut Universitaire Saint Jean"
+            + "192.168.1.105:53422 2049-03-17 03:17:42 +0000 10.10.14.5:4444")
+    return slice_svg(h, body, title="Audrey Kitio",
+                     desc="Etudiante Ingenieure Cloud et Cybersecurite. "
+                          "Double-diplome EFREI Paris et Institut Universitaire Saint Jean.",
                      text=text, top=True, css=css, defs=defs, weights=(400, 700, 800))
 
 
 # ─────────────────────────────── footer ───────────────────────────────
 def build_footer():
-    h = 80
-    text = "$ exit connection to georgekobaidze closed. // EOF"
-    body = f'''<text x="{X}" y="30" class="dim"><tspan class="gr">$</tspan> exit</text>
-<text x="{X}" y="52" class="dim">connection to <tspan class="cy">georgekobaidze</tspan> closed. <tspan fill="#484f58">// EOF</tspan></text>'''
-    return slice_svg(h, body, title="End of profile", desc="Connection closed.", text=text, bottom=True)
-
+    h = 200
+    bar_right = "DISCONNECTED"
+    disc_x = FR - 20 - len(bar_right) * 8.2 - 24
+    # exit sequence
+    exit_rows = [
+        f'<text x="{X}" y="{{y}}" class="dim"><tspan class="gr">you@kali:~$</tspan> exit</text>',
+        f'<text x="{X}" y="{{y}}" class="dim">logout</text>',
+        f'<text x="{X}" y="{{y}}" class="dim">Connection to <tspan class="cy">192.168.1.105</tspan> closed.</text>',
+        f'<text x="{X}" y="{{y}}" class="dim"><tspan class="gr">[*]</tspan> Session terminated by user.</text>',
+        f'<text x="{X}" y="{{y}}" class="dim"><tspan class="gr">[*]</tspan> Cleanup complete. Logs wiped.</text>',
+    ]
+    exit_svg, y_end = stagger(exit_rows, 36, 22, delay0=0.1, step=0.12)
+    # divider and tagline
+    cx = (FL + FR) // 2
+    tagline = "BUILD . EXPLOIT . DEFEND . STAY VIGILANT"
+    tw = len(tagline) * 8.1
+    lx1, lx2 = X, cx - tw // 2 - 16
+    rx1, rx2 = cx + tw // 2 + 16, FR - 36
+    body = f'''{exit_svg}
+<g class="ln" style="animation-delay:.9s">
+<line x1="{lx1}" y1="{y_end+10}" x2="{lx2:.0f}" y2="{y_end+10}" stroke="{PURPLE}" stroke-opacity=".4"/>
+<text x="{cx}" y="{y_end+14}" text-anchor="middle" letter-spacing="2" fill="{PURPLE}" style="font-size:11px">{e(tagline)}</text>
+<line x1="{rx1:.0f}" y1="{y_end+10}" x2="{rx2}" y2="{y_end+10}" stroke="{PURPLE}" stroke-opacity=".4"/>
+</g>
+<rect x="{FL}" y="{h-M-34}" width="{FR-FL}" height="34" fill="{PURPLE}" fill-opacity=".08"/>
+<line x1="{FL}" y1="{h-M-34}" x2="{FR}" y2="{h-M-34}" stroke="{PURPLE}" stroke-opacity=".5"/>
+<text x="{FL+16}" y="{h-M-12}" letter-spacing="2" class="cy" style="font-size:13px">&#9679; &#9679; &#9679;</text>
+<text x="{FR-20}" y="{h-M-12}" letter-spacing="1" class="dim" text-anchor="end" style="font-size:12px">{e(bar_right)}</text>
+<circle cx="{disc_x}" cy="{h-M-18}" r="4" fill="#484f58"/>'''
+    text = ("you@kali:~$ exit logout Connection to 192.168.1.105 closed."
+            + "[*] Session terminated by user Cleanup complete Logs wiped"
+            + tagline + bar_right + "● ● ●")
+    return slice_svg(h, body, title="End of profile", desc="Connection closed. Session terminated.",
+                     text=text, bottom=True)
 
 
 # ────────────────────────────── projects ──────────────────────────────
-HW = W // 2   # half-slice width (440, a multiple of 40 so the grid stays aligned)
+HW = W // 2
 
 
 def half_slice(h, side, body, *, title, desc, text, weights=(400, 700)):
-    """Left or right half of a full-width row; only its outer side has a rail."""
     assert h % 40 == 0
     rx = FL if side == "L" else HW - M
     bx0, bx1 = (FL, HW) if side == "L" else (0, HW - M)
@@ -201,299 +247,169 @@ def half_slice(h, side, body, *, title, desc, text, weights=(400, 700)):
 <defs>
 {DEFS}
 </defs>
-<path d="M{rx} -40V{h+40}" fill="none" stroke="{CYAN}" stroke-width="3" opacity=".55" filter="url(#glow)"/>
+<path d="M{rx} -40V{h+40}" fill="none" stroke="{PURPLE}" stroke-width="3" opacity=".55" filter="url(#glow)"/>
 <rect x="{bx0}" y="0" width="{bx1-bx0}" height="{h}" fill="#03040a"/>
 <rect x="{bx0}" y="0" width="{bx1-bx0}" height="{h}" fill="url(#grid)"/>
 {body}
-<path d="M{rx} 0V{h}" fill="none" stroke="{CYAN}" stroke-width="1.2"/>
+<path d="M{rx} 0V{h}" fill="none" stroke="{PURPLE}" stroke-width="1.2"/>
 </svg>
 '''
 
 
 PROJECTS = [
-    dict(slug="noterunway", name="NoteRunway", url="https://github.com/georgekobaidze/noterunway",
-         tag="HACKATHON WINNER", tagc=GREEN, stars=13, stack="Next.js · TypeScript · MCP",
-         desc="AI-powered Notion workspace management: clean up and organize your workspace with deterministic scans and AI analysis."),
-    dict(slug="metal-birds-watch", name="Metal Birds Watch", url="https://github.com/georgekobaidze/metal-birds-watch",
-         tag="HACKATHON WINNER", tagc=GREEN, stars=7, stack="Node.js · Leaflet · JavaScript",
-         desc="Real-time notifications when planes fly over your location, with live aircraft data on an interactive map."),
-    dict(slug="sunday-dev-drive", name="Sunday DEV Drive", url="https://github.com/georgekobaidze/sunday-dev-drive",
-         tag="DEV WEEKEND CHALLENGE", tagc=MAGENTA, stars=9, stack="Three.js · JavaScript · DEV API",
-         desc="A synthwave drive through your DEV Community articles, with your posts lit up on neon roadside billboards."),
-    dict(slug="neuralhats", name="NeuralHats", url="https://github.com/georgekobaidze/neuralhats",
-         tag="GEMMA 4 CHALLENGE", tagc=MAGENTA, stars=4, stack="React · FastAPI · Gemma 4",
-         desc="Six AI personas debate any topic using the Six Thinking Hats framework. Runs fully local."),
+    dict(slug="bgp-peering", name="BGP Dual-Upstream Peering",
+         url="https://github.com/NekoKits1/Optimisation-Routage-BGP-pour-peering-FAI-CDN",
+         tag="NETWORK ENGINEERING", tagc=PURPLE,
+         desc="BGP dual-upstream pour operateur telecom. BFD failover <30s, HQoS, local-pref, AS-path prepending. Simulation EVE-NG."),
+    dict(slug="localstack", name="Cloud-simul-avec-localstack",
+         url="https://github.com/NekoKits1/Cloud-simul-avec-localstack",
+         tag="CLOUD ARCHITECTURE", tagc=PURPLE,
+         desc="Pipeline serverless S3 > Lambda > DynamoDB conteneurise sous Docker. Architecture AWS locale sans compte reel."),
+    dict(slug="reverse-shell", name="Reverse-Shell-Python-TCP",
+         url="https://github.com/NekoKits1/reverse-shell-python-tcp",
+         tag="OFFENSIVE SECURITY", tagc=PINK,
+         desc="Reverse shell TCP en Python. Persistance Registry Run Key. Detection cote defense : Sysmon + MITRE ATT&CK."),
 ]
 CARD_H = 200
 
 
 def build_projects_head():
     h = 120
-    body = heading(44, "projects", "// 04") + f'''
-<g class="ln" style="animation-delay:.2s"><text x="{X}" y="96" class="dim"><tspan class="gr">$</tspan> ls -l ~/projects</text></g>'''
-    return slice_svg(h, body, title="Projects", desc="Projects", text="~/projects// 02$ ls -l")
+    body = heading(44, "projets", "// ls") + f'''
+<g class="ln" style="animation-delay:.2s"><text x="{X}" y="96" class="dim"><tspan class="gr">$</tspan> ls -l ~/projets</text></g>'''
+    return slice_svg(h, body, title="Projets", desc="Projets techniques", text="~/projets// ls$ ls -l")
 
 
-def build_card(p, side, delay, stars=None):
-    p = dict(p, stars=stars.get(p["slug"], p["stars"]) if stars else p["stars"])
-    x0 = 52 if side == "L" else 10          # card box, 378 wide, 20px gutter between the two cards
+def build_card(p, side, delay):
+    x0 = 52 if side == "L" else 10
     cw, y0, ch = 378, 12, 176
     pad = 18
     tx = x0 + pad
     cut = 16
     box = f"M{x0} {y0}H{x0+cw-cut}L{x0+cw} {y0+cut}V{y0+ch}H{x0+cut}L{x0} {y0+ch-cut}Z"
-    lines = textwrap.wrap(p["desc"], 43)
-    assert len(lines) <= 3, lines
+    # wrap desc at 43 chars
+    raw_desc = p["desc"]
+    lines = textwrap.wrap(raw_desc, 43)
+    lines = lines[:3]
     tag_w = len(p["tag"]) * 7.6 + 16
     title_w = len(p["name"]) * 10.2
-    desc = "\n".join(f'<text x="{tx}" y="{100 + i*20}" class="fg" style="font-size:13px">{e(l)}</text>' for i, l in enumerate(lines))
-    sx = x0 + cw - pad
-    star = f'<path transform="translate({sx - len(str(p["stars"]))*7.2 - 20} 158) scale(.55)" d="M10 0l2.9 6.6 7.1.6-5.4 4.7 1.6 7L10 15.2 3.8 18.9l1.6-7L0 7.2l7.1-.6z" fill="#e3b341"/>'
+    desc_svg = "\n".join(f'<text x="{tx}" y="{100 + i*20}" class="fg" style="font-size:13px">{e(l)}</text>'
+                         for i, l in enumerate(lines))
     body = f'''<g class="ln" style="animation-delay:{delay:.2f}s">
-<path d="{box}" fill="{CYAN}" fill-opacity=".035"/>
-<path d="{box}" fill="none" stroke="{CYAN}" stroke-opacity=".4"/>
-<path d="M{x0+cw-cut} {y0}L{x0+cw} {y0+cut}" stroke="{CYAN}" stroke-width="2"/>
-<text x="{tx}" y="{y0+34}" font-weight="700" fill="{CYAN}" filter="url(#g)" opacity=".6" style="font-size:17px">{e(p["name"])}</text>
+<path d="{box}" fill="{PURPLE}" fill-opacity=".035"/>
+<path d="{box}" fill="none" stroke="{PURPLE}" stroke-opacity=".4"/>
+<path d="M{x0+cw-cut} {y0}L{x0+cw} {y0+cut}" stroke="{PURPLE}" stroke-width="2"/>
+<text x="{tx}" y="{y0+34}" font-weight="700" fill="{PURPLE}" filter="url(#g)" opacity=".6" style="font-size:17px">{e(p["name"])}</text>
 <text x="{tx}" y="{y0+34}" font-weight="700" class="cy" style="font-size:17px">{e(p["name"])}</text>
-<path d="M{tx+title_w+11} {y0+31}l8-8M{tx+title_w+13} {y0+23}h6v6" fill="none" stroke="{CYAN}" stroke-width="1.6"/>
+<path d="M{tx+title_w+11} {y0+31}l8-8M{tx+title_w+13} {y0+23}h6v6" fill="none" stroke="{PURPLE}" stroke-width="1.6"/>
 <rect x="{tx}" y="{y0+46}" width="{tag_w}" height="18" fill="none" stroke="{p["tagc"]}" stroke-opacity=".8"/>
 <text x="{tx+8}" y="{y0+59}" letter-spacing="1" fill="{p["tagc"]}" style="font-size:11px">{e(p["tag"])}</text>
-{desc}
-<text x="{tx}" y="{y0+158}" class="dim" style="font-size:12px">{e(p["stack"])}</text>
-{star}
-<text x="{sx}" y="{y0+158}" text-anchor="end" class="dim" style="font-size:12px">{p["stars"]}</text>
+{desc_svg}
+<text x="{tx}" y="{y0+158}" class="dim" style="font-size:12px">github.com/NekoKits1</text>
 </g>'''
-    text = p["name"] + p["tag"] + p["desc"] + p["stack"] + str(p["stars"])
+    text = p["name"] + p["tag"] + raw_desc + "github.com/NekoKits1"
     return half_slice(CARD_H, side, body, title=p["name"],
-                      desc=f'{p["name"]}: {p["desc"]} Built with {p["stack"].replace(" · ", ", ")}. {p["stars"]} stars.', text=text)
+                      desc=f'{p["name"]}: {raw_desc}', text=text)
 
 
-
-# ─────────────────────────────── stats ────────────────────────────────
-AMBER, VIOLET = "#e3b341", "#bc8cff"
-
-
-def fmt(n):
-    return "—" if n is None else f"{n:,}"
-
-
-def tile(x, y, w, h, label, value, sub, delay, pending=False):
-    vc = "#484f58" if pending else CYAN
-    glow = "" if pending else f'<text x="{x+16}" y="{y+50}" font-weight="700" fill="{CYAN}" filter="url(#g)" opacity=".55" style="font-size:30px">{e(value)}</text>'
-    return f'''<g class="ln" style="animation-delay:{delay:.2f}s">
-<rect x="{x}" y="{y}" width="{w}" height="{h}" fill="{CYAN}" fill-opacity=".035" stroke="{CYAN}" stroke-opacity=".35"/>
-<path d="M{x} {y+12}V{y}H{x+12}" fill="none" stroke="{CYAN}" stroke-width="2"/>
-<text x="{x+16}" y="{y+22}" letter-spacing="1.5" class="dim" style="font-size:10.5px">{e(label)}</text>
-{glow}<text x="{x+16}" y="{y+50}" font-weight="700" fill="{vc}" style="font-size:30px">{e(value)}</text>
-<text x="{x+16}" y="{y+h-12}" fill="#6e7681" style="font-size:12px">{e(sub)}</text>
+def build_card_full(p, delay):
+    """Full-width card for the third project (alone on its row)."""
+    x0, y0 = 52, 12
+    cw, ch = 776, 176
+    pad, cut = 18, 16
+    tx = x0 + pad
+    box = f"M{x0} {y0}H{x0+cw-cut}L{x0+cw} {y0+cut}V{y0+ch}H{x0+cut}L{x0} {y0+ch-cut}Z"
+    raw_desc = p["desc"]
+    lines = textwrap.wrap(raw_desc, 90)
+    lines = lines[:2]
+    tag_w = len(p["tag"]) * 7.6 + 16
+    title_w = len(p["name"]) * 10.2
+    desc_svg = "\n".join(f'<text x="{tx}" y="{100 + i*20}" class="fg" style="font-size:13px">{e(l)}</text>'
+                         for i, l in enumerate(lines))
+    body = f'''<g class="ln" style="animation-delay:{delay:.2f}s">
+<path d="{box}" fill="{PINK}" fill-opacity=".025"/>
+<path d="{box}" fill="none" stroke="{PINK}" stroke-opacity=".5"/>
+<path d="M{x0+cw-cut} {y0}L{x0+cw} {y0+cut}" stroke="{PINK}" stroke-width="2"/>
+<text x="{tx}" y="{y0+34}" font-weight="700" fill="{PINK}" filter="url(#g)" opacity=".6" style="font-size:17px">{e(p["name"])}</text>
+<text x="{tx}" y="{y0+34}" font-weight="700" class="pk" style="font-size:17px">{e(p["name"])}</text>
+<path d="M{tx+title_w+11} {y0+31}l8-8M{tx+title_w+13} {y0+23}h6v6" fill="none" stroke="{PINK}" stroke-width="1.6"/>
+<rect x="{tx}" y="{y0+46}" width="{tag_w}" height="18" fill="none" stroke="{p["tagc"]}" stroke-opacity=".8"/>
+<text x="{tx+8}" y="{y0+59}" letter-spacing="1" fill="{p["tagc"]}" style="font-size:11px">{e(p["tag"])}</text>
+{desc_svg}
+<text x="{tx}" y="{y0+158}" class="dim" style="font-size:12px">github.com/NekoKits1</text>
+<text x="{x0+cw-pad}" y="{y0+158}" text-anchor="end" class="dim" style="font-size:12px">(Le projet qui a permis cette connexion !)</text>
 </g>'''
-
-
-def build_stats(d):
-    y = datetime.date.fromisoformat(d["updated"])
-    since = datetime.date.fromisoformat(d["created_at"][:10])
-    yrs = (y - since).days // 365
-    parts = []
-    parts.append(heading(44, "stats", "// 02"))
-    parts.append(f'<g class="ln" style="animation-delay:.15s"><text x="{X}" y="96" class="dim"><tspan class="gr">$</tspan> gh stats --user georgekobaidze</text></g>')
-    # row 1 — big tiles
-    tw, gap, ty, th = 182, 16, 118, 92
-    t1 = [("TOTAL STARS", fmt(d["stars"]), f"across {d.get('repo_count', 'all')} repos" if d.get("repo_count") else "across all repos"),
-          (f"CONTRIBUTIONS {d['year']}", fmt(d["contributions_year"]), f"{fmt(d['contributions_all'])} all time")
-          if "contributions_year" in d else   # older data files only have commit counts
-          (f"COMMITS {d['year']}", fmt(d["commits_year"]), f"{fmt(d['commits_all'])} all time"),
-          ("PULL REQUESTS", fmt(d["prs"]), f"{fmt(d['prs_merged'])} merged"),
-          ("CURRENT STREAK", f"{d['streak_current']}d", f"longest: {d['streak_longest']} days")]
-    for i, (lab, val, sub) in enumerate(t1):
-        parts.append(tile(X + i * (tw + gap), ty, tw, th, lab, val, sub, .25 + i * .08))
-    # row 2 — neofetch list + languages
-    ry, rh = ty + th + 16, 150
-    lw = 300
-    kv = [("followers", fmt(d["followers"])), ("forks", fmt(d["forks"])),
-          ("member since", f"{since:%b %Y} ({yrs}y)"), ("hackathon wins", f"{d['hackathon_wins']} ★")]
-    rows = "\n".join(
-        f'<text x="{X+16}" y="{ry+38+i*28}" xml:space="preserve"><tspan class="cy">{e(k)}</tspan><tspan class="dim">{"." * (16 - len(k))}</tspan> <tspan class="fg">{e(v)}</tspan></text>'
-        for i, (k, v) in enumerate(kv))
-    parts.append(f'''<g class="ln" style="animation-delay:.6s">
-<rect x="{X}" y="{ry}" width="{lw}" height="{rh}" fill="{CYAN}" fill-opacity=".035" stroke="{CYAN}" stroke-opacity=".35"/>
-<path d="M{X} {ry+12}V{ry}H{X+12}" fill="none" stroke="{CYAN}" stroke-width="2"/>
-{rows}
-</g>''')
-    lx = X + lw + gap
-    lwid = (FR - 36) - lx
-    langs = sorted(d["languages"].items(), key=lambda kv: -kv[1])
-    total = sum(v for _, v in langs)
-    top = langs[:5]
-    other = total - sum(v for _, v in top)
-    items = [(k, v / total) for k, v in top] + ([("Other", other / total)] if other else [])
-    cols = [CYAN, MAGENTA, GREEN, AMBER, VIOLET, "#6e7681"]
-    bx, by, bw = lx + 16, ry + 42, lwid - 32
-    segs, cx = [], bx
-    for (k, p), c in zip(items, cols):
-        w = bw * p
-        segs.append(f'<rect x="{cx:.1f}" y="{by}" width="{max(w-2,1):.1f}" height="8" fill="{c}"/>')
-        segs.append(f'<rect x="{cx:.1f}" y="{by}" width="{max(w-2,1):.1f}" height="8" fill="{c}" filter="url(#g)" opacity=".6"/>')
-        cx += w
-    legend = []
-    for i, ((k, p), c) in enumerate(zip(items, cols)):
-        col, row = i % 2, i // 2
-        lxx = bx + col * (bw / 2)
-        lyy = by + 36 + row * 26
-        legend.append(f'<rect x="{lxx}" y="{lyy-9}" width="9" height="9" fill="{c}"/>'
-                      f'<text x="{lxx+18}" y="{lyy}" class="fg" style="font-size:13px">{e(k)}</text>'
-                      f'<text x="{lxx + bw/2 - 24}" y="{lyy}" text-anchor="end" class="dim" style="font-size:13px">{p*100:.1f}%</text>')
-    parts.append(f'''<g class="ln" style="animation-delay:.7s">
-<rect x="{lx}" y="{ry}" width="{lwid}" height="{rh}" fill="{CYAN}" fill-opacity=".035" stroke="{CYAN}" stroke-opacity=".35"/>
-<path d="M{lx} {ry+12}V{ry}H{lx+12}" fill="none" stroke="{CYAN}" stroke-width="2"/>
-<text x="{lx+16}" y="{ry+24}" letter-spacing="1.5" class="dim" style="font-size:10.5px">TOP LANGUAGES</text>
-<rect x="{bx}" y="{by}" width="{bw}" height="8" fill="#11161d"/>
-{"".join(segs)}
-{"".join(legend)}
-</g>''')
-    # row 3 — DEV Community (tiles without data are left out; the row hides if all are missing)
-    dv = d.get("dev") or {}
-    t3 = [(lab, dv.get(k)) for lab, k in (("ARTICLES", "articles"), ("REACTIONS", "reactions"), ("COMMENTS", "comments"),
-                                          ("VIEWS", "views"), ("DEV FOLLOWERS", "followers"))]
-    t3 = [(lab, v) for lab, v in t3 if v is not None]
-    fy = ry + rh + 30
-    if t3:
-        dy = ry + rh + 34
-        parts.append(f'<g class="ln" style="animation-delay:.8s"><text x="{X}" y="{dy}" class="dim"><tspan class="gr">$</tspan> dev stats --user georgekobaidze</text></g>')
-        n = len(t3)
-        dw = (FR - 36 - X - (n - 1) * 12) / n
-        for i, (lab, val) in enumerate(t3):
-            parts.append(tile(X + i * (dw + 12), dy + 16, dw, 76, lab, fmt(val), "", .9 + i * .06))
-        fy = dy + 16 + 76 + 30
-    parts.append(f'<text x="{FR-36}" y="{fy}" text-anchor="end" fill="#484f58" style="font-size:11px">// last sync {d["updated"]}</text>')
-    h = up40(fy + 16)
-    text = "".join(str(x) for x in ["~/stats// 02$ gh stats --user georgekobaidze dev stats", "".join(p for p in parts)])
-    text = re.sub(r"<[^>]+>", "", text) + "0123456789,—%.★()d"
-    activity = (f"{d['contributions_year']} contributions in {d['year']}, {d['contributions_all']} all time"
-                if "contributions_year" in d else f"{d['commits_year']} commits in {d['year']}, {d['commits_all']} all time")
-    desc = (f"GitHub stats: {d['stars']} total stars; {activity}; "
-            f"{d['prs']} pull requests ({d['prs_merged']} merged); current streak {d['streak_current']} days, longest {d['streak_longest']}; "
-            f"{d['followers']} followers; {d['forks']} forks; member since {since:%B %Y}; {d['hackathon_wins']} hackathon wins. "
-            "Top languages: " + ", ".join(f"{k} {p*100:.1f}%" for k, p in items) + "."
-            + ("" if not t3 else " DEV Community: " + ", ".join(f"{fmt(v)} {lab.lower()}" for lab, v in t3) + "."))
-    return slice_svg(h, "\n".join(parts), title="Stats", desc=desc, text=html.unescape(text))
+    text = p["name"] + p["tag"] + raw_desc + "github.com/NekoKits1 Le projet qui a permis cette connexion"
+    return slice_svg(CARD_H, body, title=p["name"], desc=f'{p["name"]}: {raw_desc}', text=text)
 
 
 # ─────────────────────────────── stack ────────────────────────────────
 STACK = [
-    ("languages", ["C#", "Java", "TypeScript", "JavaScript", "Python"]),
-    ("frameworks", [".NET", "Node.js", "FastAPI"]),
-    ("databases", ["PostgreSQL", "MS SQL", "MySQL", "Redis", "MongoDB"]),
-    ("cloud", ["AWS", "Azure"]),
-    ("front-end", ["React", "Next.js", "Three.js", "Tailwind CSS"]),
+    ("cloud & devops", ["AWS", "Docker", "Terraform", "LocalStack", "Ansible"]),
+    ("networking & security", ["Cisco IOS", "BGP (i/eBGP)", "OSPF", "EVE-NG", "Wireshark"]),
+    ("systems & virtualization", ["Linux (Ubuntu/Kali)", "Windows Server", "VMware"]),
+    ("programming & scripting", ["Python", "Bash", "Java"]),
 ]
 
 
 def build_stack():
-    parts = [heading(44, "stack", "// 05"),
+    parts = [heading(44, "stack", "// scan"),
              f'<g class="ln" style="animation-delay:.15s"><text x="{X}" y="96" class="dim"><tspan class="gr">$</tspan> scan --loadout --top-level</text></g>']
     y, rowh = 126, 44
-    cw = 0.6 * 13          # char advance at 13px
+    cw = 0.6 * 13
     for r, (cat, items) in enumerate(STACK):
         parts.append(f'<g class="ln" style="animation-delay:{.25 + r*.1:.2f}s">')
         parts.append(f'<text x="{X}" y="{y+20}" class="dim" style="font-size:13px">{e(cat)}</text>')
-        parts.append(f'<text x="{X+104}" y="{y+20}" class="cy" style="font-size:13px">›</text>')
-        x = X + 124
+        parts.append(f'<text x="{X+180}" y="{y+20}" class="cy" style="font-size:13px">&#8250;</text>')
+        x = X + 200
         for it in items:
             w = len(it) * cw + 26
-            parts.append(f'<rect x="{x:.1f}" y="{y}" width="{w:.1f}" height="30" fill="{CYAN}" fill-opacity=".06" stroke="{CYAN}" stroke-opacity=".55"/>')
-            parts.append(f'<path d="M{x:.1f} {y+8}V{y}H{x+8:.1f}" fill="none" stroke="{CYAN}" stroke-width="2"/>')
+            parts.append(f'<rect x="{x:.1f}" y="{y}" width="{w:.1f}" height="30" fill="{PURPLE}" fill-opacity=".06" stroke="{PURPLE}" stroke-opacity=".55"/>')
+            parts.append(f'<path d="M{x:.1f} {y+8}V{y}H{x+8:.1f}" fill="none" stroke="{PURPLE}" stroke-width="2"/>')
             parts.append(f'<text x="{x+13:.1f}" y="{y+20}" font-weight="700" class="cy" style="font-size:13px">{e(it)}</text>')
             x += w + 10
         parts.append("</g>")
         y += rowh
     h = up40(y + 10)
-    text = "~/stack// 05$ scan --loadout --top-level›" + "".join(c + "".join(i) for c, i in STACK)
+    text = "~/stack// scan$ scan --loadout --top-level>" + "".join(c + "".join(i) for c, i in STACK)
     desc = "Tech stack. " + " ".join(f"{c}: {', '.join(i)}." for c, i in STACK)
     return slice_svg(h, "\n".join(parts), title="Tech stack", desc=desc, text=text)
 
 
-# ─────────────────────────────── writing ──────────────────────────────
-HEART = "M8 14.2 6.9 13.2C3 9.7.5 7.4.5 4.6.5 2.3 2.3.5 4.6.5c1.3 0 2.5.6 3.4 1.6C8.9 1.1 10.1.5 11.4.5c2.3 0 4.1 1.8 4.1 4.1 0 2.8-2.5 5.1-6.4 8.6z"
-BUBBLE = "M1.5 1.5h13v9h-7l-3.5 3v-3h-2.5z"
-
-
-def build_writing_head():
-    body = heading(44, "writing", "// 06") + f'''
-<g class="ln" style="animation-delay:.15s"><text x="{X}" y="96" class="dim"><tspan class="gr">$</tspan> tail -n 5 ~/dev.to/posts.log <tspan fill="#484f58"># auto-updated</tspan></text></g>'''
-    return slice_svg(120, body, title="Writing", desc="Latest articles on DEV Community",
-                     text="~/writing// 06$ tail -n 5 ~/dev.to/posts.log # auto-updated")
-
-
-def build_article_row(a, i):
-    date = a["published_at"][:10]
-    title = a["title"]
-    maxc = 58
-    shown = title if len(title) <= maxc else title[:maxc - 1].rstrip(" .,:;") + "…"
-    tx = X + 112
-    rx = FR - 36
-    rc, cc = str(a["reactions"]), str(a["comments"])
-    # right block:  ♥ 169   ▭ 218   ↗
-    ax = rx - 10
-    cx_num = ax - 18
-    cx_icon = cx_num - 3 * 7.8 - 22       # fixed columns (room for 3 digits) so rows line up
-    rx_num = cx_icon - 16
-    rx_icon = rx_num - 3 * 7.8 - 22
-    body = f'''<g class="ln" style="animation-delay:{.2 + i*.08:.2f}s">
-<rect x="{X-10}" y="4" width="{rx - X + 20}" height="32" fill="{CYAN}" fill-opacity="{'.04' if i % 2 == 0 else '0'}"/>
-<text x="{X}" y="25" class="dim" style="font-size:13px">{date}</text>
-<text x="{X+94}" y="25" class="cy" style="font-size:13px">›</text>
-<text x="{tx}" y="25" class="fg" style="font-size:14px">{e(shown)}</text>
-<path transform="translate({rx_icon:.1f} 13) scale(.8)" d="{HEART}" fill="{MAGENTA}"/>
-<text x="{rx_num:.1f}" y="25" text-anchor="end" class="dim" style="font-size:13px">{rc}</text>
-<path transform="translate({cx_icon:.1f} 13) scale(.8)" d="{BUBBLE}" fill="none" stroke="{CYAN}" stroke-width="1.5" stroke-linejoin="round"/>
-<text x="{cx_num:.1f}" y="25" text-anchor="end" class="dim" style="font-size:13px">{cc}</text>
-<path d="M{ax-6} 25l8-8M{ax-4} 17h6v6" fill="none" stroke="{CYAN}" stroke-width="1.5"/>
-</g>'''
-    text = date + "›" + shown + rc + cc
-    return slice_svg(40, body, title=title,
-                     desc=f"{title}. Published {date}. {rc} reactions, {cc} comments.", text=text)
-
-
-def build_writing_more():
-    body = f'''<g class="ln" style="animation-delay:.7s">
-<text x="{X}" y="26" style="font-size:13px"><tspan class="gr">&gt;&gt;</tspan><tspan class="cy"> read all articles on DEV Community</tspan></text>
-<path d="M{X+298} 26l8-8M{X+300} 18h6v6" fill="none" stroke="{CYAN}" stroke-width="1.5"/>
-</g>'''
-    return slice_svg(40, body, title="All articles", desc="Read all articles on DEV Community",
-                     text=">> read all articles on DEV Community")
-
-
 # ──────────────────────────────── links ───────────────────────────────
 LINKS = [
-    ("devdotto", "DEV", "@georgekobaidze", "https://dev.to/georgekobaidze"),
-    ("linkedin", "LinkedIn", "in/giorgikobaidze", "https://www.linkedin.com/in/giorgikobaidze/"),
-    ("x", "X", "@georgekobaidze", "https://x.com/georgekobaidze"),
-    ("youtube", "YouTube", "@Pilotronica", "https://www.youtube.com/@Pilotronica"),
-    ("discord", "Discord", "say hi", "https://discord.com/users/571315867426488330"),
+    ("linkedin", "LinkedIn", "linkedin.com/in/audreykarellekitio", "https://www.linkedin.com/in/audreykarellekitio/"),
+    ("email", "Email", "audreykarellekits@gmail.com", "mailto:audreykarellekits@gmail.com"),
 ]
 ICONS = json.load(open(HERE / "icons.json"))
-SEG = W // len(LINKS)     # 176 px per button slice
-BTN_W, BTN_GAP = 124, 39  # buttons line up with the text column (x = 52 … 828)
+SEG = W // len(LINKS)   # 440 px per button
+BTN_W, BTN_GAP = 190, 60
 
 
 def icon_markup(key, x, y, size=18):
-    if key == "linkedin":   # simple generic "in" glyph (LinkedIn isn't in Simple Icons)
-        return (f'<rect x="{x}" y="{y}" width="{size}" height="{size}" rx="3" fill="{CYAN}"/>'
+    if key == "linkedin":
+        return (f'<rect x="{x}" y="{y}" width="{size}" height="{size}" rx="3" fill="{PURPLE}"/>'
                 f'<text x="{x + size/2}" y="{y + size - 4.5}" text-anchor="middle" font-weight="700" fill="#03040a" style="font-size:12px">in</text>')
-    d = ICONS[key]
-    return f'<path transform="translate({x} {y}) scale({size/24})" d="{d}" fill="{CYAN}"/>'
+    if key == "email":
+        # simple envelope
+        s = size
+        return (f'<rect x="{x}" y="{y+2}" width="{s}" height="{s-4}" rx="2" fill="none" stroke="{PURPLE}" stroke-width="1.5"/>'
+                f'<path d="M{x} {y+2}l{s/2} {(s-4)*0.5}l{s/2} {-(s-4)*0.5}" fill="none" stroke="{PURPLE}" stroke-width="1.5"/>')
+    d = ICONS.get(key, "")
+    return f'<path transform="translate({x} {y}) scale({size/24})" d="{d}" fill="{PURPLE}"/>'
 
 
 def build_links_head():
-    body = heading(44, "links", "// 01") + f'''
-<g class="ln" style="animation-delay:.15s"><text x="{X}" y="96" class="dim"><tspan class="gr">$</tspan> ping georgekobaidze --all-channels</text></g>'''
-    return slice_svg(120, body, title="Links", desc="Where to find me", text="~/links// 01$ ping georgekobaidze --all-channels")
+    body = heading(44, "connexions", "// ping") + f'''
+<g class="ln" style="animation-delay:.15s"><text x="{X}" y="96" class="dim"><tspan class="gr">$</tspan> ping audrey --all-channels</text></g>'''
+    return slice_svg(120, body, title="Connexions", desc="Comment me contacter",
+                     text="~/connexions// ping$ ping audrey --all-channels")
 
 
 def build_link_button(k):
     key, label, handle, url = LINKS[k]
     h = 80
-    x0 = SEG * k                       # this slice's position inside the full-width row
+    x0 = SEG * k
     lx = X + k * (BTN_W + BTN_GAP) - x0
     first, last = k == 0, k == len(LINKS) - 1
     bg0 = FL - x0 if first else 0
@@ -503,10 +419,10 @@ def build_link_button(k):
     by, bh, cut = 12, 56, 12
     box = f"M{lx} {by}H{lx+BTN_W-cut}L{lx+BTN_W} {by+cut}V{by+bh}H{lx}Z"
     text = label + handle + "in"
-    body = f'''<g class="ln" style="animation-delay:{.25 + k*.08:.2f}s">
-<path d="{box}" fill="{CYAN}" fill-opacity=".05"/>
-<path d="{box}" fill="none" stroke="{CYAN}" stroke-opacity=".55"/>
-<path d="M{lx+BTN_W-cut} {by}L{lx+BTN_W} {by+cut}" stroke="{CYAN}" stroke-width="2"/>
+    body = f'''<g class="ln" style="animation-delay:{.25 + k*.12:.2f}s">
+<path d="{box}" fill="{PURPLE}" fill-opacity=".05"/>
+<path d="{box}" fill="none" stroke="{PURPLE}" stroke-opacity=".55"/>
+<path d="M{lx+BTN_W-cut} {by}L{lx+BTN_W} {by+cut}" stroke="{PURPLE}" stroke-width="2"/>
 <g filter="url(#g)" opacity=".5">{icon_markup(key, lx+12, by+11)}</g>
 {icon_markup(key, lx+12, by+11)}
 <text x="{lx+38}" y="{by+25}" font-weight="700" class="cy" style="font-size:13px">{e(label)}</text>
@@ -521,149 +437,17 @@ def build_link_button(k):
 @media (prefers-reduced-motion:reduce){{*{{animation:none!important}}}}
 </style>
 <defs>
-<pattern id="grid" x="{(-x0) % 40}" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M40 0H0V40" fill="none" stroke="{CYAN}" stroke-opacity=".06"/></pattern>
+<pattern id="grid" x="{(-x0) % 40}" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M40 0H0V40" fill="none" stroke="{PURPLE}" stroke-opacity=".06"/></pattern>
 <filter id="glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="6"/></filter>
 <filter id="g" x="-20%" y="-60%" width="140%" height="220%"><feGaussianBlur stdDeviation="4"/></filter>
 </defs>
-{f'<path d="{glow}" fill="none" stroke="{CYAN}" stroke-width="3" opacity=".55" filter="url(#glow)"/>' if glow else ""}
+{f'<path d="{glow}" fill="none" stroke="{PURPLE}" stroke-width="3" opacity=".55" filter="url(#glow)"/>' if glow else ""}
 <rect x="{bg0}" y="0" width="{bg1-bg0}" height="{h}" fill="#03040a"/>
 <rect x="{bg0}" y="0" width="{bg1-bg0}" height="{h}" fill="url(#grid)"/>
 {body}
-{f'<path d="{rails}" fill="none" stroke="{CYAN}" stroke-width="1.2"/>' if rails else ""}
+{f'<path d="{rails}" fill="none" stroke="{PURPLE}" stroke-width="1.2"/>' if rails else ""}
 </svg>
 '''
-
-# ─────────────────────────── contribution city ────────────────────────
-
-CITY_TW, CITY_TH = 25, 12.5                  # iso tile width / height
-CITY_OX, CITY_OY = 152.5, 262                # grid origin inside the 880-wide slice
-CITY_HMAX = 118                              # tallest building, px
-ROOFS = ["#0c2d6b", "#1554c0", "#2f81f7", "#1fd5ff"]   # navy → electric blue, matching the neon console
-WIN_ON, WIN_ON_SIDE, WIN_OFF = "#7df9ff", "#4cc9f0", "#111827"
-
-
-def _shade(hexc, f):
-    r, g, b = (int(hexc[i:i + 2], 16) for i in (1, 3, 5))
-    return "#%02x%02x%02x" % tuple(max(0, min(255, int(c * f))) for c in (r, g, b))
-
-
-def _p(x, y):
-    return f"{x:.1f},{y:.1f}"
-
-
-def _rng(seed):
-    """Tiny deterministic PRNG, so the same data always draws the same windows."""
-    state = int(hashlib.sha256(seed.encode()).hexdigest()[:16], 16)
-    while True:
-        state = (state * 6364136223846793005 + 1442695040888963407) % 2**64
-        yield (state >> 11) / 2**53
-
-
-def _levels(counts):
-    """GitHub-style quartile thresholds over the non-zero days."""
-    nz = sorted(c for c in counts if c > 0)
-    if not nz:
-        return [1, 1, 1]
-    q = lambda f: nz[min(len(nz) - 1, int(len(nz) * f))]
-    return [q(.25), q(.5), q(.75)]
-
-
-def build_city(calendar, updated):
-    days = [(datetime.date.fromisoformat(d), n) for d, n in calendar]
-    counts = [n for _, n in days]
-    total, peak = sum(counts), max(counts) if counts else 0
-    lv = _levels(counts)
-    rnd = _rng(f"{updated}-{total}")
-    start = days[0][0]
-
-    cells = []
-    for d, n in days:
-        idx = (d - start).days
-        cells.append((idx // 7, (d.weekday() + 1) % 7, n))      # week column, Sunday = 0
-    cells.sort(key=lambda c: (c[0] + c[1], c[0]))                 # back to front
-
-    shapes, flick = [], 0
-    for w, dow, n in cells:
-        cx = CITY_OX + (w - dow) * CITY_TW / 2
-        cy = CITY_OY + (w + dow) * CITY_TH / 2
-        L, R = (cx - CITY_TW / 2, cy), (cx + CITY_TW / 2, cy)
-        T, B = (cx, cy - CITY_TH / 2), (cx, cy + CITY_TH / 2)
-        if n == 0:
-            shapes.append(f'<path d="M{_p(*T)}L{_p(*R)}L{_p(*B)}L{_p(*L)}Z" fill="#161b22" stroke="#0d1117" stroke-width=".6"/>')
-            continue
-        h = 8 + (CITY_HMAX - 8) * math.sqrt(n / peak)
-        level = sum(n > t for t in lv)
-        Tu, Ru, Bu, Lu = [(x, y - h) for x, y in (T, R, B, L)]
-        shapes.append(f'<path d="M{_p(*L)}L{_p(*B)}L{_p(*Bu)}L{_p(*Lu)}Z" fill="#1a2440"/>'
-                      f'<path d="M{_p(*B)}L{_p(*R)}L{_p(*Ru)}L{_p(*Bu)}Z" fill="#111831"/>'
-                      f'<path d="M{_p(*Tu)}L{_p(*Ru)}L{_p(*Bu)}L{_p(*Lu)}Z" fill="{ROOFS[level]}"/>')
-        on, side, off, fl = [], [], [], []
-        for face, (a, b) in (("l", (L, B)), ("r", (B, R))):
-            for r in range(int((h - 6) // 7)):
-                v0 = 5 + r * 7
-                for u0 in (.18, .58):
-                    lit = next(rnd) < .55
-                    if not lit and next(rnd) < .5:
-                        continue
-                    pts = [(a[0] + (b[0] - a[0]) * u, a[1] + (b[1] - a[1]) * u - v)
-                           for u, v in ((u0, v0), (u0 + .26, v0), (u0 + .26, v0 + 3.2), (u0, v0 + 3.2))]
-                    seg = "M" + "L".join(_p(*q) for q in pts) + "Z"
-                    if not lit:
-                        off.append(seg)
-                    elif next(rnd) < .03:
-                        fl.append((seg, face))
-                    else:
-                        (on if face == "l" else side).append(seg)
-        if off:
-            shapes.append(f'<path d="{"".join(off)}" fill="{WIN_OFF}"/>')
-        if on:
-            shapes.append(f'<path d="{"".join(on)}" fill="{WIN_ON}"/>')
-        if side:
-            shapes.append(f'<path d="{"".join(side)}" fill="{WIN_ON_SIDE}"/>')
-        for seg, face in fl:
-            flick += 1
-            shapes.append(f'<path class="f{flick % 3}" d="{seg}" fill="{WIN_ON if face == "l" else WIN_ON_SIDE}"/>')
-
-    # night sky in the empty top-right corner: stars, moon, a plane crossing
-    stars = []
-    for i in range(46):
-        x, y = 470 + next(rnd) * 350, 118 + next(rnd) * 150
-        if x > 700 and y < 215:           # keep the moon clear
-            continue
-        cls = f' class="s{i % 3}"' if i % 3 == 0 else ""
-        stars.append(f'<circle{cls} cx="{x:.1f}" cy="{y:.1f}" r="{(.6, .8, 1.1)[i % 3]}" fill="#c9d1d9" opacity="{.35 + next(rnd) * .5:.2f}"/>')
-    busiest_d, busiest_n = max(days, key=lambda t: t[1]) if days else (None, 0)
-    info = [f'<tspan class="cy" font-weight="700">{total:,}</tspan> contributions · last 365 days',
-            f'busiest day <tspan class="fg">{busiest_d:%b} {busiest_d.day}</tspan> · {busiest_n}' if busiest_n else "",
-            f'{sum(1 for n in counts if n)} active days']
-    info_svg = "".join(f'<text x="{FR-36}" y="{300 + i*20}" text-anchor="end" class="dim" style="font-size:12px">{t}</text>'
-                       for i, t in enumerate(info) if t)
-    legend = "".join(f'<rect x="{X + 52 + i*16}" y="{642}" width="11" height="11" fill="{c}"/>'
-                     for i, c in enumerate(["#161b22"] + ROOFS))
-    body = heading(44, "contribution-city", "// 03") + f'''
-<g class="ln" style="animation-delay:.15s"><text x="{X}" y="96" class="dim"><tspan class="gr">$</tspan> render-city --last 365d <tspan fill="#484f58"># one building per day</tspan></text></g>
-<g>{"".join(stars)}</g>
-<circle cx="{FR-80}" cy="{160}" r="40" fill="url(#moonglow)"/>
-<circle cx="{FR-80}" cy="{160}" r="14" fill="#e6edf3"/>
-<circle cx="{FR-74}" cy="{155}" r="12.5" fill="#03040a"/>
-<g class="plane"><g transform="translate(0 132)"><rect x="0" y="0" width="14" height="2" rx="1" fill="#484f58"/><circle class="bl" cx="0" cy="1" r="1.6" fill="#ff7b72"/><circle class="bl" cx="14" cy="1" r="1.6" fill="#f0f6fc" style="animation-delay:.7s"/></g></g>
-{info_svg}
-{"".join(shapes)}
-<text x="{X}" y="{652}" class="dim" style="font-size:11px">quiet</text>{legend}<text x="{X + 52 + 5*16 + 6}" y="{652}" class="dim" style="font-size:11px">skyscraper</text>'''
-    css = f"""@keyframes tw{{0%,100%{{opacity:.9}}50%{{opacity:.15}}}}
-@keyframes fl{{0%,40%,100%{{opacity:1}}45%,60%{{opacity:.1}}}}
-@keyframes blink{{0%,90%,100%{{opacity:0}}93%{{opacity:1}}}}
-@keyframes fly{{from{{transform:translate({FL - 40}px,0)}}to{{transform:translate({FR + 40}px,-30px)}}}}
-.s0{{animation:tw 3s infinite}}
-.f0{{animation:fl 5s infinite}}.f1{{animation:fl 7s infinite 2s}}.f2{{animation:fl 9s infinite 4s}}
-.plane{{animation:fly 26s linear infinite}}.bl{{animation:blink 1.4s infinite}}"""
-    defs = f'<radialGradient id="moonglow"><stop offset="0" stop-color="#f0f6fc" stop-opacity=".22"/><stop offset="1" stop-color="#f0f6fc" stop-opacity="0"/></radialGradient>'
-    desc = (f"Contribution city: an isometric night skyline with one building per day of the last year, "
-            f"taller and brighter for busier days. {total:,} contributions"
-            + (f", busiest day {busiest_d:%B} {busiest_d.day} with {busiest_n}" if busiest_n else "") + ".")
-    return slice_svg(680, body, title="Contribution city", desc=desc,
-                     text="~/contribution-city// 03$ render-city --last 365d # one building per dayquietskyscraper",
-                     css=css, defs=defs)
 
 
 def write(rel, svg):
@@ -675,29 +459,23 @@ def write(rel, svg):
 def main():
     global OUT
     import argparse
-    ap = argparse.ArgumentParser(description="Render the profile SVGs from data/*.json.")
-    ap.add_argument("--data", type=pathlib.Path, default=DATA, help="folder with stats.json and articles.json")
-    ap.add_argument("--out", type=pathlib.Path, default=OUT, help="folder to write the SVGs into")
+    ap = argparse.ArgumentParser(description="Render the profile SVGs from data/stats.json.")
+    ap.add_argument("--data", type=pathlib.Path, default=DATA)
+    ap.add_argument("--out", type=pathlib.Path, default=OUT)
     args = ap.parse_args()
     OUT = args.out
-    stats = json.load(open(args.data / "stats.json"))
-    articles = json.load(open(args.data / "articles.json"))
-    stars = stats.get("repo_stars", {})
     write("header.svg", build_header())
     write("links.svg", build_links_head())
-    for k, (key, *_) in enumerate(LINKS):
-        write(f"links/{'dev' if key == 'devdotto' else key}.svg", build_link_button(k))
-    write("stats.svg", build_stats(stats))
-    if (args.data / "calendar.json").exists():
-        write("contribution-city.svg", build_city(json.load(open(args.data / "calendar.json")), stats["updated"]))
+    for k in range(len(LINKS)):
+        key = LINKS[k][0]
+        write(f"links/{key}.svg", build_link_button(k))
     write("projects.svg", build_projects_head())
-    for i, p in enumerate(PROJECTS):
-        write(f"card-{p['slug']}.svg", build_card(p, "L" if i % 2 == 0 else "R", 0.3 + i * 0.12, stars))
+    # row 1: BGP (L) + LocalStack (R)
+    write(f"card-{PROJECTS[0]['slug']}.svg", build_card(PROJECTS[0], "L", 0.30))
+    write(f"card-{PROJECTS[1]['slug']}.svg", build_card(PROJECTS[1], "R", 0.42))
+    # row 2: RevShell full-width
+    write(f"card-{PROJECTS[2]['slug']}.svg", build_card_full(PROJECTS[2], 0.54))
     write("stack.svg", build_stack())
-    write("writing.svg", build_writing_head())
-    for i, a in enumerate(articles[:5]):
-        write(f"writing/post-{i+1}.svg", build_article_row(a, i))
-    write("writing/all-articles.svg", build_writing_more())
     write("footer.svg", build_footer())
     print("rendered", len(list(OUT.rglob("*.svg"))), "SVGs into", OUT)
 

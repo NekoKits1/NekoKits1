@@ -1,14 +1,8 @@
-"""Fetches fresh profile data from GitHub and DEV into data/stats.json, data/articles.json
-and data/calendar.json (last 53 weeks of daily contributions).
+"""Fetches fresh profile data from GitHub into data/stats.json and data/calendar.json.
 
-Environment variables (all optional):
-  PROFILE_TOKEN  classic personal access token (repo + read:user). Lets commit, PR and
-                 streak numbers include private work. Falls back to GITHUB_TOKEN.
+Environment variables:
+  PROFILE_TOKEN  classic personal access token (repo + read:user). Includes private contributions.
   GITHUB_TOKEN   the token GitHub Actions provides automatically (public data only).
-  DEV_API_KEY    DEV Community API key. Adds total views and DEV followers.
-
-Each source is fetched independently. If one fails, its previous values are kept,
-so a flaky API never blanks out part of the profile.
 """
 import datetime
 import json
@@ -19,10 +13,9 @@ import urllib.error
 import urllib.parse
 import urllib.request
 
-USER = "georgekobaidze"
-HACKATHON_WINS = 2
+USER = "NekoKits1"
 DATA = pathlib.Path(__file__).resolve().parent / "data"
-UA = "georgekobaidze-profile-updater"
+UA = "NekoKits1-profile-updater"
 
 
 # ─────────────────────────────── helpers ───────────────────────────────
@@ -56,7 +49,6 @@ def save(name, obj):
 
 
 def warn(msg):
-    # "::warning::" makes the message show up as an annotation on the Actions run page
     print(f"::warning::{msg}" if os.environ.get("GITHUB_ACTIONS") else f"warning: {msg}", file=sys.stderr)
 
 
@@ -93,7 +85,6 @@ def years_query(years):
 
 
 def streaks(days, today):
-    """days: {date: count}. Current streak may end yesterday if today has no contributions yet."""
     dates = sorted(d for d in days if d <= today)
     longest = run = 0
     for d in dates:
@@ -122,7 +113,6 @@ def fetch_github(token, today):
             for day in w["contributionDays"]:
                 days[datetime.date.fromisoformat(day["date"])] = day["contributionCount"]
     current, longest = streaks(days, today)
-    # last 53 weeks, starting on a Sunday like GitHub's own graph (feeds the contribution city)
     start = today - datetime.timedelta(weeks=52)
     start -= datetime.timedelta(days=(start.weekday() + 1) % 7)
     calendar = [[d.isoformat(), days.get(d, 0)] for d in
@@ -156,93 +146,26 @@ def fetch_github(token, today):
     }
 
 
-# ──────────────────────────────── DEV ──────────────────────────────────
-def dev_paged(url, headers=None):
-    out, page = [], 1
-    while True:
-        sep = "&" if "?" in url else "?"
-        batch = http_json(f"{url}{sep}per_page=1000&page={page}", headers=headers)
-        if not batch:
-            return out
-        out.extend(batch)
-        if len(batch) < 1000:
-            return out
-        page += 1
-
-
-def fetch_dev(api_key):
-    arts = dev_paged(f"https://dev.to/api/articles?username={urllib.parse.quote(USER)}")
-    arts.sort(key=lambda a: a["published_at"], reverse=True)
-    dev = {
-        "articles": len(arts),
-        "reactions": sum(a.get("public_reactions_count", 0) for a in arts),
-        "comments": sum(a.get("comments_count", 0) for a in arts),
-        "views": None,
-        "followers": None,
-    }
-    if api_key:
-        h = {"api-key": api_key, "Accept": "application/vnd.forem.api-v1+json"}
-        try:
-            mine = dev_paged("https://dev.to/api/articles/me/published", h)
-            dev["views"] = sum(a.get("page_views_count", 0) for a in mine)
-            if mine:
-                # the public list can be served stale from DEV's cache for a while after
-                # publishing; this authenticated list isn't, so prefer it for the latest posts
-                arts = sorted(mine, key=lambda a: a["published_at"], reverse=True)
-                dev.update(articles=len(arts),
-                           reactions=sum(a.get("public_reactions_count", 0) for a in arts),
-                           comments=sum(a.get("comments_count", 0) for a in arts))
-        except Exception as ex:  # noqa: BLE001 — one missing tile shouldn't fail the run
-            warn(f"DEV views unavailable: {ex}")
-        try:
-            dev["followers"] = len(dev_paged("https://dev.to/api/followers/users", h))
-        except Exception as ex:  # noqa: BLE001
-            warn(f"DEV followers unavailable: {ex}")
-    latest = [{"published_at": a["published_at"], "title": a["title"], "url": a["url"],
-               "reactions": a.get("public_reactions_count", 0), "comments": a.get("comments_count", 0)}
-              for a in arts[:5]]
-    return dev, latest
-
-
 # ──────────────────────────────── main ─────────────────────────────────
 def main():
     today = datetime.datetime.now(datetime.timezone.utc).date()
     stats = load("stats.json", {})
-    articles = load("articles.json", [])
-    ok = False
 
     token = os.environ.get("PROFILE_TOKEN") or os.environ.get("GITHUB_TOKEN")
-    if token:
-        try:
-            gh = fetch_github(token, today)
-            save("calendar.json", gh.pop("_calendar"))
-            stats.update(gh)
-            ok = True
-            print("github: ok" + (" (with private contributions)" if os.environ.get("PROFILE_TOKEN") else " (public only)"))
-        except Exception as ex:  # noqa: BLE001
-            warn(f"GitHub fetch failed, keeping previous stats: {ex}")
-    else:
-        warn("No PROFILE_TOKEN or GITHUB_TOKEN set, skipping GitHub")
+    if not token:
+        warn("No PROFILE_TOKEN or GITHUB_TOKEN set, skipping GitHub fetch")
+        sys.exit(1)
 
     try:
-        dev, latest = fetch_dev(os.environ.get("DEV_API_KEY"))
-        prev = stats.get("dev") or {}
-        # keep a previously known value rather than dropping a tile when the key-only calls fail
-        stats["dev"] = {k: (v if v is not None else prev.get(k)) for k, v in dev.items()}
-        if latest:
-            articles = latest
-        ok = True
-        print("dev: ok" + ("" if os.environ.get("DEV_API_KEY") else " (public only, no DEV_API_KEY)"))
+        gh = fetch_github(token, today)
+        save("calendar.json", gh.pop("_calendar"))
+        stats.update(gh)
+        stats["updated"] = today.isoformat()
+        save("stats.json", stats)
+        print("github: ok" + (" (with private contributions)" if os.environ.get("PROFILE_TOKEN") else " (public only)"))
     except Exception as ex:  # noqa: BLE001
-        warn(f"DEV fetch failed, keeping previous values: {ex}")
-
-    if not ok:
-        print("error: every source failed, nothing updated", file=sys.stderr)
+        warn(f"GitHub fetch failed: {ex}")
         sys.exit(1)
-    stats["hackathon_wins"] = HACKATHON_WINS
-    stats["updated"] = today.isoformat()
-    save("stats.json", stats)
-    save("articles.json", articles)
 
 
 if __name__ == "__main__":
