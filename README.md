@@ -1,21 +1,27 @@
-<p align="center">
-<img src="./assets/header.svg" width="100%" align="top" alt="Giorgi Kobaidze — software engineer and engineering manager. 10 years of C# and .NET, back-end at heart. Building open-source tools under Pilotronica.">
-<img src="./assets/links.svg" width="100%" align="top" alt="Links">
-<a href="https://dev.to/georgekobaidze"><img src="./assets/links/dev.svg" width="20%" align="top" alt="DEV Community"></a><a href="https://www.linkedin.com/in/giorgikobaidze/"><img src="./assets/links/linkedin.svg" width="20%" align="top" alt="LinkedIn"></a><a href="https://x.com/georgekobaidze"><img src="./assets/links/x.svg" width="20%" align="top" alt="X"></a><a href="https://www.youtube.com/@Pilotronica"><img src="./assets/links/youtube.svg" width="20%" align="top" alt="YouTube"></a><a href="https://discord.com/users/571315867426488330"><img src="./assets/links/discord.svg" width="20%" align="top" alt="Discord"></a>
-<img src="./assets/stats.svg" width="100%" align="top" alt="Stats: 56 total stars; 1104 contributions in 2026, 1744 all time; 159 pull requests (154 merged); current streak 14 days, longest 24 days; 65 followers; 15 forks; member since December 2016; 2 hackathon wins. Top languages: TypeScript, JavaScript, Python, C#, CSS. DEV Community: 46 articles, 2,055 reactions, 1,424 comments, 111,846 views, 13,863 followers.">
-<img src="./assets/contribution-city.svg" width="100%" align="top" alt="Contribution city: an isometric night skyline with one building per day of the last year. 1,315 contributions, busiest day May 23 with 43.">
-<img src="./assets/projects.svg" width="100%" align="top" alt="Projects">
-<a href="https://github.com/georgekobaidze/noterunway"><img src="./assets/card-noterunway.svg" width="50%" align="top" alt="NoteRunway — hackathon winner. AI-powered Notion workspace management: clean up and organize your workspace with deterministic scans and AI analysis. Next.js, TypeScript, MCP."></a><a href="https://github.com/georgekobaidze/metal-birds-watch"><img src="./assets/card-metal-birds-watch.svg" width="50%" align="top" alt="Metal Birds Watch — hackathon winner. Real-time notifications when planes fly over your location, with live aircraft data on an interactive map. Node.js, Leaflet, JavaScript."></a>
-<a href="https://github.com/georgekobaidze/sunday-dev-drive"><img src="./assets/card-sunday-dev-drive.svg" width="50%" align="top" alt="Sunday DEV Drive — DEV Weekend Challenge. A synthwave drive through your DEV Community articles, with your posts lit up on neon roadside billboards. Three.js, JavaScript, DEV API."></a><a href="https://github.com/georgekobaidze/neuralhats"><img src="./assets/card-neuralhats.svg" width="50%" align="top" alt="NeuralHats — Gemma 4 Challenge. Six AI personas debate any topic using the Six Thinking Hats framework. Runs fully local. React, FastAPI, Gemma 4."></a>
-<img src="./assets/stack.svg" width="100%" align="top" alt="Tech stack. Languages: C#, Java, TypeScript, JavaScript, Python. Frameworks: .NET, Node.js, FastAPI. Databases: PostgreSQL, MS SQL, MySQL, Redis, MongoDB. Cloud: AWS, Azure. Front-end: React, Next.js, Three.js, Tailwind CSS.">
-<img src="./assets/writing.svg" width="100%" align="top" alt="Writing: latest articles on DEV Community">
-<!-- writing:start -->
-<a href="https://dev.to/georgekobaidze/georgian-language-benchmark-two-biggest-ai-labs-clash-in-a-language-that-doesnt-play-by-anyones-5b22"><img src="./assets/writing/post-1.svg" width="100%" align="top" alt="Georgian Language Benchmark: Two Biggest AI Labs Clash in a Language That Doesn&#x27;t Play by Anyone&#x27;s Rules — published 2026-10-11, 46 reactions, 28 comments"></a>
-<a href="https://dev.to/georgekobaidze/i-turned-my-github-profile-into-a-cyberpunk-console-with-a-city-built-from-my-contributions-h4c"><img src="./assets/writing/post-2.svg" width="100%" align="top" alt="I Turned My GitHub Profile Into a Cyberpunk Console With a City Built From My Contributions — published 2026-10-01, 251 reactions, 162 comments"></a>
-<a href="https://dev.to/georgekobaidze/vims-swan-song-is-it-time-to-q-eek"><img src="./assets/writing/post-3.svg" width="100%" align="top" alt="Vim&#x27;s Swan Song: Is It Time to :q!? — published 2026-09-25, 35 reactions, 23 comments"></a>
-<a href="https://dev.to/georgekobaidze/double-engine-failure-back-to-the-hangar-after-two-data-providers-changed-course-3o3"><img src="./assets/writing/post-4.svg" width="100%" align="top" alt="Double Engine Failure: Back to the Hangar After Two Data Providers Changed Course — published 2026-09-24, 11 reactions, 12 comments"></a>
-<a href="https://dev.to/georgekobaidze/real-talk-you-dont-miss-engineering-you-miss-typing-1bc3"><img src="./assets/writing/post-5.svg" width="100%" align="top" alt="Real Talk: You Don&#x27;t Miss Engineering. You Miss Typing — published 2026-09-21, 29 reactions, 8 comments"></a>
-<!-- writing:end -->
-<a href="https://dev.to/georgekobaidze"><img src="./assets/writing/all-articles.svg" width="100%" align="top" alt="Read all articles on DEV Community"></a>
-<img src="./assets/footer.svg" width="100%" align="top" alt="Connection closed.">
-</p>
+<div align="center">
+
+<img src="./assets/header.svg" width="100%" alt="NekoKits1 — Étudiante Ingénieure en Réseaux &amp; Cybersécurité">
+
+<br/>
+
+<img src="./assets/links.svg" width="100%" alt="Connexions">
+
+<a href="https://linkedin.com/in/audreykarellekitio"><img src="./assets/links/linkedin.svg" width="50%" align="top" alt="LinkedIn — linkedin.com/in/audreykarellekitio"></a><a href="mailto:audreykarellekits@gmail.com"><img src="./assets/links/email.svg" width="50%" align="top" alt="Email — audreykarellekits@gmail.com"></a>
+
+<br/>
+
+<img src="./assets/projects.svg" width="100%" alt="Projets">
+
+<a href="https://github.com/NekoKits1/Optimisation-Routage-BGP-pour-peering-FAI-CDN"><img src="./assets/card-bgp-peering.svg" width="50%" align="top" alt="BGP Dual-Upstream Peering — Network Engineering"></a><a href="https://github.com/NekoKits1/Cloud-simul-avec-localstack"><img src="./assets/card-localstack.svg" width="50%" align="top" alt="Cloud-simul-avec-localstack — Cloud Architecture"></a>
+
+<a href="https://github.com/NekoKits1/reverse-shell-python-tcp"><img src="./assets/card-reverse-shell.svg" width="100%" align="top" alt="Reverse-Shell-Python-TCP — Offensive Security"></a>
+
+<br/>
+
+<img src="./assets/stack.svg" width="100%" alt="Stack">
+
+<br/>
+
+<img src="./assets/footer.svg" width="100%" alt="Footer — Connection closed">
+
+</div>
