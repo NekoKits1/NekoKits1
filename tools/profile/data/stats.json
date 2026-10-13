@@ -1,40 +1,27 @@
 {
-  "updated": "2026-10-12",
+  "updated": "2026-10-13",
   "year": 2026,
-  "created_at": "2016-12-26T08:38:44Z",
-  "stars": 56,
-  "forks": 15,
-  "followers": 65,
-  "commits_year": 714,
-  "commits_all": 820,
-  "prs": 159,
-  "prs_merged": 154,
-  "streak_current": 14,
-  "streak_longest": 24,
+  "created_at": "2023-10-17T00:23:22Z",
+  "stars": 2,
+  "forks": 0,
+  "followers": 3,
+  "commits_year": 87,
+  "commits_all": 94,
+  "prs": 0,
+  "prs_merged": 0,
+  "streak_current": 0,
+  "streak_longest": 2,
   "hackathon_wins": 2,
   "languages": {
-    "TypeScript": 476092,
-    "JavaScript": 221963,
-    "Python": 157545,
-    "C#": 118369,
-    "CSS": 85328,
-    "HTML": 60473,
-    "Shell": 10327,
-    "PowerShell": 7766,
-    "Smalltalk": 592
+    "Python": 22020,
+    "Shell": 232
   },
   "repo_stars": {
-    "georgekobaidze": 19,
-    "design-patterns": 0,
-    "vscode-settings": 0,
-    "oh-my-posh": 0,
-    "dotnet-templates": 0,
-    "dotnet10-playground": 1,
-    "metal-birds-watch": 8,
-    "sunday-dev-drive": 9,
-    "noterunway": 13,
-    "neuralhats": 6,
-    "georgian-language-benchmarks": 0
+    "Gestion_Notes": 0,
+    "Cloud-simul-avec-localstack": 2,
+    "Reverse-Shell-Python-TCP": 0,
+    "NekoKits1": 0,
+    "Optimisation-Routage-BGP-pour-peering-FAI-CDN": 0
   },
   "dev": {
     "articles": 46,
@@ -43,6 +30,6 @@
     "views": 111846,
     "followers": 13863
   },
-  "contributions_year": 1104,
-  "contributions_all": 1744
+  "contributions_year": 92,
+  "contributions_all": 102
 }
