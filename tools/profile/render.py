@@ -418,15 +418,17 @@ def build_link_button(k):
     glow = (f"M{FL - x0} -40V{h+40}" if first else "") + (f"M{FR - x0} -40V{h+40}" if last else "")
     by, bh, cut = 12, 56, 12
     box = f"M{lx} {by}H{lx+BTN_W-cut}L{lx+BTN_W} {by+cut}V{by+bh}H{lx}Z"
-    text = label + handle + "in"
+    text = label + "in"
+    # vertically center the label+icon in the box since there's no subtitle line
+    icy = by + (bh - 18) // 2  # icon top
+    ty  = icy + 14              # text baseline ≈ icon mid
     body = f'''<g class="ln" style="animation-delay:{.25 + k*.12:.2f}s">
 <path d="{box}" fill="{PURPLE}" fill-opacity=".05"/>
 <path d="{box}" fill="none" stroke="{PURPLE}" stroke-opacity=".55"/>
 <path d="M{lx+BTN_W-cut} {by}L{lx+BTN_W} {by+cut}" stroke="{PURPLE}" stroke-width="2"/>
-<g filter="url(#g)" opacity=".5">{icon_markup(key, lx+12, by+11)}</g>
-{icon_markup(key, lx+12, by+11)}
-<text x="{lx+38}" y="{by+25}" font-weight="700" class="cy" style="font-size:13px">{e(label)}</text>
-<text x="{lx+12}" y="{by+46}" class="dim" style="font-size:10px">{e(handle)}</text>
+<g filter="url(#g)" opacity=".5">{icon_markup(key, lx+12, icy)}</g>
+{icon_markup(key, lx+12, icy)}
+<text x="{lx+38}" y="{ty}" font-weight="700" class="cy" style="font-size:14px">{e(label)}</text>
 </g>'''
     return f'''<svg xmlns="http://www.w3.org/2000/svg" width="{SEG}" height="{h}" viewBox="0 0 {SEG} {h}" role="img" aria-labelledby="t d">
 <title id="t">{e(label)}</title>
